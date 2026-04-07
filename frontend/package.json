@@ -1,0 +1,26 @@
+{
+  "name": "conversation-intelligence-ui",
+  "version": "1.0.0",
+  "description": "React frontend for AI Conversation Intelligence System",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0",
+    "react-icons": "^4.12.0",
+    "react-router-dom": "^6.20.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.6",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.7"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite"
+  }
+}
