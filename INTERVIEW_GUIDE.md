@@ -1,6 +1,6 @@
 # 🎙️ AI Conversation Intelligence System - Interview Guide
 
-This guide is designed to help you explain the project clearly and confidently during an interview. It explains the project architecture, the core workflows (audio processing & RAG), and the technical challenges you solved.
+This guide is designed to help you explain the project clearly and confidently during an interview. It explains the project architecture, languages used, startup commands, core workflows (audio processing & RAG), and the technical challenges you solved.
 
 ---
 
@@ -10,9 +10,14 @@ This guide is designed to help you explain the project clearly and confidently d
 ---
 
 ## 2. Technical Architecture & Tech Stack
-Explain the technologies used and how they are organized:
-- **Frontend**: Built with **React.js, Tailwind CSS, and Vite** (clean, responsive, dynamic SPA).
-- **Backend**: **FastAPI** (Python) - chosen for its speed, automatic Swagger documentation, and native support for asynchronous requests.
+
+### Programming Languages Used
+- **Frontend Language**: **JavaScript (ES6+)** with **HTML5** & **CSS3** (styled using Tailwind CSS).
+- **Backend Language**: **Python 3.10+** (leveraging FastAPI, Pydantic for validation, and standard library modules).
+
+### Frameworks & Libraries
+- **Frontend**: Built with **React.js** (components) and **Vite** (bundler and dev server) for a fast, responsive Single Page Application (SPA).
+- **Backend**: **FastAPI** (Python) - chosen for its speed, built-in async capability, and automatic OpenAPI/Swagger documentation.
 - **Speech-to-Text**: **OpenAI Whisper** model (running locally on CPU).
 - **Embeddings**: **SentenceTransformers** (specifically the `all-MiniLM-L6-v2` model, which converts text into 384-dimensional semantic vectors).
 - **Vector Database**: **FAISS** (Facebook AI Similarity Search) - an in-memory vector database used for ultra-fast similarity search.
@@ -82,7 +87,24 @@ sequenceDiagram
 
 ---
 
-## 5. Engineering Challenges & Problem-Solving
+## 5. How to Run the Project
+If the interviewer asks how you start the services:
+- **Easiest Way (Scripts)**: Double-click `run-backend.bat` and `run-frontend.bat` on Windows.
+- **Manual Command Line**:
+  - **Backend**:
+    ```powershell
+    $env:PYTHONPATH="."
+    .venv\Scripts\python.exe -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    ```
+  - **Frontend**:
+    ```powershell
+    cd frontend
+    npm run dev  # or npm start
+    ```
+
+---
+
+## 6. Engineering Challenges & Problem-Solving
 *Highlighting these during an interview shows you are a strong developer who can debug real-world issues:*
 
 ### Challenge 1: Memory Constraints for Server Deployment
