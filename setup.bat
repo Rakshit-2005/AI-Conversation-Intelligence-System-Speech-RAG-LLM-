@@ -41,11 +41,16 @@ echo ✓ Node.js found
 REM Setup Backend
 echo.
 echo --- Setting up Backend ---
-if not exist "venv" (
-    echo Creating Python virtual environment...
-    python -m venv venv
+if exist ".venv" (
+    echo Using existing .venv virtual environment
+    call .venv\Scripts\activate.bat
+) else (
+    if not exist "venv" (
+        echo Creating Python virtual environment...
+        python -m venv venv
+    )
+    call venv\Scripts\activate.bat
 )
-call venv\Scripts\activate.bat
 
 echo Installing Python dependencies...
 pip install -q -r requirements.txt

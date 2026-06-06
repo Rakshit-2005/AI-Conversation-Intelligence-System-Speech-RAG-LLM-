@@ -48,7 +48,8 @@ class EmbeddingsGenerator:
         Returns:
             NumPy array of embeddings
         """
-        if isinstance(texts, str):
+        is_single = isinstance(texts, str)
+        if is_single:
             texts = [texts]
 
         try:
@@ -59,7 +60,7 @@ class EmbeddingsGenerator:
                 show_progress_bar=False,
             )
 
-            if len(texts) == 1:
+            if is_single:
                 return embeddings[0]
 
             return embeddings

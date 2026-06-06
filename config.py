@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     DATA_DIR: Path = PROJECT_ROOT / "data"
     MODELS_DIR: Path = PROJECT_ROOT / "models"
     LOGS_DIR: Path = PROJECT_ROOT / "logs"
+    UPLOAD_DIR: Path = DATA_DIR / "uploads"
 
     # Speech Recognition
     WHISPER_MODEL: Literal["tiny", "base", "small", "medium", "large"] = "base"
@@ -49,11 +50,13 @@ class Settings(BaseSettings):
     FAISS_ENABLE_GPU: bool = False
 
     # LLM Configuration
-    LLM_PROVIDER: Literal["openai", "gemini"] = "openai"
+    LLM_PROVIDER: Literal["openai", "gemini", "groq"] = "openai"
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = "gpt-4"  # or "gpt-3.5-turbo"
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = "gemini-2.5-flash"
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL: str = "llama3-8b-8192"
 
     # LLM Parameters
     MAX_TOKENS: int = 2000
@@ -96,6 +99,7 @@ class Settings(BaseSettings):
         self.LOGS_DIR.mkdir(exist_ok=True, parents=True)
         self.DATA_DIR.mkdir(exist_ok=True, parents=True)
         self.MODELS_DIR.mkdir(exist_ok=True, parents=True)
+        self.UPLOAD_DIR.mkdir(exist_ok=True, parents=True)
 
 
 # Global settings instance
@@ -107,3 +111,6 @@ if settings.LLM_PROVIDER == "openai" and not settings.OPENAI_API_KEY:
 
 if settings.LLM_PROVIDER == "gemini" and not settings.GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
+
+if settings.LLM_PROVIDER == "groq" and not settings.GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY environment variable not set")

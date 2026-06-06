@@ -4,7 +4,11 @@ REM AI Conversational System - Run Backend (Windows)
 cd /d "%~dp0"
 
 REM Activate virtual environment
-call venv\Scripts\activate.bat
+if exist ".venv" (
+    call .venv\Scripts\activate.bat
+) else (
+    call venv\Scripts\activate.bat
+)
 
 REM Set environment variables from .env if they exist
 for /f "tokens=*" %%i in ('type .env 2^>nul ^| findstr /v "^REM"') do set %%i

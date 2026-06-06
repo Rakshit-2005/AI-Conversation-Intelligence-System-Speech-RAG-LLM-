@@ -50,6 +50,27 @@ export const apiService = {
       include_themes: includeAll,
       include_risks: includeAll,
     }),
+  
+  // Audio Upload
+  uploadAudio: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+
+  processAudioFile: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/process-audio-file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
 
   // Vector Store
   getVectorStoreStats: () => api.get('/vector-store/stats'),

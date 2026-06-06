@@ -155,6 +155,15 @@ class HealthResponse(BaseModel):
     embeddings_ready: bool
 
 
+# Audio Upload Models
+class AudioUploadResponse(BaseModel):
+    """Response from audio file upload"""
+    filename: str
+    filepath: str
+    size_bytes: int
+    status: str
+
+
 # Error Response Model
 class ErrorResponse(BaseModel):
     """Error response"""

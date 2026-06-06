@@ -4,13 +4,19 @@ A full-stack application that intelligently analyzes conversations using **Speec
 
 ## 🎯 Key Features
 
-### 1. **Speech-to-Text Transcription**
+### 1. **Integrated Conversation Intelligence Dashboard**
+- **All-in-One Dashboard**: Summarize, analyze sentiment, extract action items, and ask questions directly from the transcription results page.
+- **State Persistence**: Your transcribed conversation and analysis reports are saved to local storage so they remain on your screen even if you switch tabs or reload the browser.
+- **Collapsible Layout**: Expand or collapse long transcripts easily with a single toggle.
+- **Robust Downloads**: Download full conversations as plain text via standard Blob buffers, avoiding length truncation bugs.
+
+### 2. **Speech-to-Text Transcription**
 - Convert audio files to text using OpenAI Whisper
 - Support for multiple languages
 - Segment-level timing information
 - Handles various audio formats (mp3, wav, m4a, flac)
 
-### 2. **Semantic Search (RAG)**
+### 3. **Semantic Search (RAG)**
 - Store conversation embeddings in FAISS vector database
 - Retrieve relevant chunks based on semantic similarity
 - Contextual Q&A over conversations
@@ -94,9 +100,11 @@ Create a `.env` file in the project root:
 
 ```env
 # LLM Configuration
-LLM_PROVIDER=openai  # or gemini
+LLM_PROVIDER=openai  # or gemini or groq
 OPENAI_API_KEY=sk-xxxxxxxxxxxxx
 # GEMINI_API_KEY=xxxxxxxxxxxxx
+# GROQ_API_KEY=xxxxxxxxxxxxx
+# GROQ_MODEL=llama-3.1-8b-instant
 
 # Application Settings
 DEBUG=True

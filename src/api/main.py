@@ -29,6 +29,7 @@ from src.api.models import (
     ComprehensiveAnalysisRequest,
     ComprehensiveAnalysisResponse,
     HealthResponse,
+    AudioUploadResponse,
 )
 from src.core.transcriber import get_transcriber
 from src.core.chunker import get_chunker
@@ -155,7 +156,7 @@ async def process_conversation(request: TranscriptionRequest):
 
         return {
             "id": audio_path.stem,
-            "transcription": text[:500] + "..." if len(text) > 500 else text,
+            "transcription": text,
             "embedding_status": "success",
             "vector_index_size": vector_store.index.ntotal,
             "processing_time_seconds": processing_time,
@@ -164,6 +165,93 @@ async def process_conversation(request: TranscriptionRequest):
 
     except Exception as e:
         logger.error(f"Conversation processing failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/upload", response_model=AudioUploadResponse)
+async def upload_audio_file(file: UploadFile = File(...)):
+    """Upload audio file and save it to data/uploads"""
+    try:
+        logger.info(f"Uploading file: {file.filename}")
+        
+        # Validate file format
+        ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
+        if ext not in settings.AUDIO_FORMATS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file format: .{ext}. Supported formats are {settings.AUDIO_FORMATS}"
+            )
+            
+        # Ensure name is clean and save to UPLOAD_DIR
+        safe_filename = "".join(c for c in file.filename if c.isalnum() or c in "._-")
+        filepath = settings.UPLOAD_DIR / safe_filename
+        
+        # Write file contents
+        size_bytes = 0
+        with open(filepath, "wb") as buffer:
+            while chunk := await file.read(1024 * 1024):  # 1MB chunk size
+                buffer.write(chunk)
+                size_bytes += len(chunk)
+                
+        logger.info(f"File {file.filename} saved to {filepath} ({size_bytes} bytes)")
+        
+        return AudioUploadResponse(
+            filename=safe_filename,
+            filepath=str(filepath),
+            size_bytes=size_bytes,
+            status="uploaded"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Upload failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/process-audio-file")
+async def process_audio_file(file: UploadFile = File(...)):
+    """Upload an audio file and process it end-to-end (transcribe -> chunk -> embed -> FAISS)"""
+    try:
+        # Step 1: Upload the file
+        upload_result = await upload_audio_file(file)
+        saved_filepath = Path(upload_result.filepath)
+        
+        # Step 2: Transcribe
+        start_time = time.time()
+        logger.info(f"Processing uploaded conversation: {saved_filepath}")
+
+        transcriber = get_transcriber()
+        transcription_result = transcriber.transcribe(saved_filepath)
+        text = transcription_result["text"]
+
+        # Step 3: Chunk
+        chunker = get_chunker()
+        chunks = chunker.chunk(text, method="paragraphs")
+
+        # Step 4: Generate embeddings
+        embeddings_gen = get_embeddings_generator()
+        chunks_with_embeddings = embeddings_gen.embed_chunks(chunks)
+
+        # Step 5: Store in vector database
+        vector_store = get_vector_store()
+        embeddings_array = [
+            chunk.pop("embedding") for chunk in chunks_with_embeddings
+        ]
+        vector_store.add_embeddings(embeddings_array, chunks_with_embeddings)
+
+        processing_time = time.time() - start_time
+
+        return {
+            "id": saved_filepath.stem,
+            "filename": upload_result.filename,
+            "transcription": text,
+            "embedding_status": "success",
+            "vector_index_size": vector_store.index.ntotal,
+            "processing_time_seconds": processing_time,
+            "chunks_created": len(chunks),
+        }
+    except Exception as e:
+        logger.error(f"Audio file processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -224,8 +312,14 @@ async def summarize(request: SummarizationRequest):
         else:  # full
             result = summarizer.summarize_full(request.text)
 
+        summary_text = (
+            result.get("summary")
+            or result.get("bullet_points")
+            or result.get("contextual_summary")
+            or ""
+        )
         return SummarizationResponse(
-            summary=result.get("summary", result.get("bullet_points", "")),
+            summary=summary_text,
             type=request.type,
         )
 
@@ -253,8 +347,16 @@ async def analyze_sentiment(request: SentimentAnalysisRequest):
         else:  # overall
             result = analyzer.analyze_overall(request.text)
 
+        sentiment_text = (
+            result.get("analysis")
+            or result.get("per_speaker_analysis")
+            or result.get("topic_sentiment")
+            or result.get("issues_detected")
+            or result.get("satisfaction")
+            or ""
+        )
         return SentimentAnalysisResponse(
-            analysis=result.get("analysis", ""),
+            analysis=sentiment_text,
             type=request.analysis_type,
         )
 
@@ -280,8 +382,15 @@ async def extract_action_items(request: ActionItemsRequest):
         else:  # full
             result = extractor.extract_action_items(request.text)
 
+        action_text = (
+            result.get("action_items")
+            or result.get("decisions")
+            or result.get("deadlines")
+            or result.get("risks_and_blockers")
+            or ""
+        )
         return ActionItemsResponse(
-            items=result.get("action_items", ""),
+            items=action_text,
             type=request.extraction_type,
         )
 

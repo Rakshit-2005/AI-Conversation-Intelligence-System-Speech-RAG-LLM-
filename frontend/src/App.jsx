@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FiHome, FiFileText, FiSmile, FiCheckCircle, FiHelpCircle, FiSettings, FiServer } from 'react-icons/fi'
+import { FiHome, FiFileText, FiSmile, FiCheckCircle, FiHelpCircle, FiSettings, FiServer, FiMic } from 'react-icons/fi'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
@@ -8,6 +8,7 @@ import SentimentAnalyzer from './pages/SentimentAnalyzer'
 import ActionItems from './pages/ActionItems'
 import QA from './pages/QA'
 import Settings from './pages/Settings'
+import Transcriber from './pages/Transcriber'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
@@ -15,6 +16,7 @@ function App() {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: FiHome },
+    { id: 'transcribe', label: 'Transcribe Audio', icon: FiMic },
     { id: 'summarizer', label: 'Summarizer', icon: FiFileText },
     { id: 'sentiment', label: 'Sentiment', icon: FiSmile },
     { id: 'actions', label: 'Action Items', icon: FiCheckCircle },
@@ -26,6 +28,8 @@ function App() {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard />
+      case 'transcribe':
+        return <Transcriber />
       case 'summarizer':
         return <Summarizer />
       case 'sentiment':

@@ -44,6 +44,17 @@ class LLMClient:
             except Exception as e:
                 logger.error(f"Failed to initialize Gemini client: {e}")
                 raise
+        elif self.provider == "groq":
+            try:
+                import openai
+                self.client = openai.OpenAI(
+                    api_key=settings.GROQ_API_KEY,
+                    base_url="https://api.groq.com/openai/v1"
+                )
+                logger.info("Groq client initialized")
+            except Exception as e:
+                logger.error(f"Failed to initialize Groq client: {e}")
+                raise
         else:
             raise ValueError(f"Unknown provider: {self.provider}")
 
@@ -76,6 +87,10 @@ class LLMClient:
                 )
             elif self.provider == "gemini":
                 return self._call_gemini(
+                    prompt, system_prompt, temperature, max_tokens
+                )
+            elif self.provider == "groq":
+                return self._call_groq(
                     prompt, system_prompt, temperature, max_tokens
                 )
         except Exception as e:
@@ -128,6 +143,30 @@ class LLMClient:
         )
 
         return response.text
+
+    def _call_groq(
+        self,
+        prompt: str,
+        system_prompt: Optional[str],
+        temperature: float,
+        max_tokens: int,
+    ) -> str:
+        """Call Groq API"""
+        messages = []
+
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        messages.append({"role": "user", "content": prompt})
+
+        response = self.client.chat.completions.create(
+            model=settings.GROQ_MODEL,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        return response.choices[0].message.content
 
 
 # Global LLM client instance
